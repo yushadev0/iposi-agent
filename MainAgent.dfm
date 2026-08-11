@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 441
-  ClientWidth = 624
+  ClientHeight = 456
+  ClientWidth = 186
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,14 +12,25 @@ object Form1: TForm1
   Font.Style = []
   TextHeight = 15
   object PopupMenu1: TPopupMenu
-    Left = 48
+    Left = 32
     Top = 48
-    object Durum1: TMenuItem
-      Caption = 'Durum'
+    object mnuOpenIposi: TMenuItem
+      Caption = 'Open Iposi'
+      OnClick = mnuOpenIposiClick
     end
     object Durum2: TMenuItem
-      Caption = #199#305'k'#305#351
-      OnClick = Durum2Click
+      Caption = '-'
+    end
+    object mnuStatus: TMenuItem
+      Caption = 'Status: Listening on 19090'
+      Enabled = False
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object mnuQuit: TMenuItem
+      Caption = 'Quit'
+      OnClick = mnuQuitClick
     end
   end
   object TrayIcon1: TTrayIcon
@@ -161,7 +172,20 @@ object Form1: TForm1
       380FFF00780FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
     PopupMenu = PopupMenu1
     Visible = True
-    Left = 48
+    Left = 32
+    Top = 120
+  end
+  object IdHTTPServer1: TIdHTTPServer
+    Active = True
+    Bindings = <>
+    DefaultPort = 19090
+    OnCommandGet = IdHTTPServer1CommandGet
+    Left = 120
+    Top = 48
+  end
+  object NetHTTPClient1: TNetHTTPClient
+    UserAgent = 'Embarcadero URI Client/1.0'
+    Left = 120
     Top = 120
   end
 end
