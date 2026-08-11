@@ -10,6 +10,7 @@ object Form1: TForm1
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  OnCreate = FormCreate
   TextHeight = 15
   object PopupMenu1: TPopupMenu
     Left = 32
@@ -24,6 +25,10 @@ object Form1: TForm1
     object mnuStatus: TMenuItem
       Caption = 'Status: Listening on 19090'
       Enabled = False
+    end
+    object mnuStartWithWindows: TMenuItem
+      Caption = 'Start with Windows'
+      OnClick = mnuStartWithWindowsClick
     end
     object N1: TMenuItem
       Caption = '-'

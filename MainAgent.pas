@@ -8,7 +8,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.ExtCtrls,
   System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent,
   IdBaseComponent, IdComponent, IdCustomTCPServer, IdCustomHTTPServer,
-  IdHTTPServer, IdContext, ShellAPI;
+  IdHTTPServer, IdContext, ShellAPI, System.Win.Registry;
 
 type
   TForm1 = class(TForm)
@@ -21,10 +21,13 @@ type
     mnuStatus: TMenuItem;
     N1: TMenuItem;
     mnuQuit: TMenuItem;
+    mnuStartWithWindows: TMenuItem;
     procedure IdHTTPServer1CommandGet(AContext: TIdContext;
       ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
     procedure mnuQuitClick(Sender: TObject);
     procedure mnuOpenIposiClick(Sender: TObject);
+    procedure mnuStartWithWindowsClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -37,6 +40,25 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  Reg: TRegistry;
+begin
+  Reg := TRegistry.Create;
+  try
+    Reg.RootKey := HKEY_CURRENT_USER;
+    if Reg.OpenKey('\Software\Microsoft\Windows\CurrentVersion\Run', False) then
+    begin
+      // Eğer IposiAgent anahtarı varsa ve yolu bizim exe ile eşleşiyorsa tiki koy
+      mnuStartWithWindows.Checked := Reg.ValueExists('IposiAgent') and
+        (Reg.ReadString('IposiAgent') = ParamStr(0));
+      Reg.CloseKey;
+    end;
+  finally
+    Reg.Free;
+  end;
+end;
 
 procedure TForm1.IdHTTPServer1CommandGet(AContext: TIdContext;
   ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
@@ -138,6 +160,33 @@ end;
 procedure TForm1.mnuQuitClick(Sender: TObject);
 begin
   Application.Terminate;
+end;
+
+procedure TForm1.mnuStartWithWindowsClick(Sender: TObject);
+var
+  Reg: TRegistry;
+begin
+  // Menüdeki tik (check) durumunu tersine çevir
+  mnuStartWithWindows.Checked := not mnuStartWithWindows.Checked;
+
+  Reg := TRegistry.Create;
+  try
+    Reg.RootKey := HKEY_CURRENT_USER;
+    // Registry'deki "Run" klasörünü aç (True parametresi yoksa oluşturur)
+    if Reg.OpenKey('\Software\Microsoft\Windows\CurrentVersion\Run', True) then
+    begin
+      if mnuStartWithWindows.Checked then
+        // ParamStr(0) bize çalışan IposiAgent.exe'nin tam yolunu verir
+        Reg.WriteString('IposiAgent', ParamStr(0))
+      else
+        // Tik kaldırıldıysa kaydı sil
+        Reg.DeleteValue('IposiAgent');
+
+      Reg.CloseKey;
+    end;
+  finally
+    Reg.Free;
+  end;
 end;
 
 end.
